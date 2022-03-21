@@ -1,0 +1,65 @@
+# File:       drop_requirements.txt
+# Author:     Chris Ford
+# Date:       March 2, 2022
+#
+# --- constants ---------------------------------------------------------
+#
+# 7 hutch names:
+#
+#     CXI
+#     XCS
+#     MEC
+#     MFX
+#     XPP
+#     TMO
+#     RIX
+#
+# 1 stopper PV for each hutch:
+#
+#     STPR:XRT1:1:S5OUT_MPSC
+#     PPS:FEH1:4:S4STPRSUM
+#     PPS:FEH1:6:S6STPRSUM
+#     STPR:XRT:1:S45IN_MPSC
+#     PPS:NEH1:1:S3INSUM
+#     PPS:NEH1:1:ST3K4OUTSUM
+#     STPR:NEH1:2200:ST1K2OUT
+#
+# 2 soft xray PVs:
+#
+#     soft_abtprd = IOC:IN20:EV01:BYKIKS_ABTPRD
+#     soft_abtact = IOC:IN20:EV01:BYKIKS_ABTACT
+#
+# 2 hard xray PVs:
+#
+#     hard_abtprd = IOC:IN20:EV01:BYKIK_ABTPRD
+#     hard_abtact = IOC:IN20:EV01:BYKIK_ABTACT
+#
+# 5 hutches are hard xray, and 2 (TMO and RIX) are soft xray
+#
+# 3 of the stoppers (XCS, MEC, and XPP) open on 0, and 4 open on 1
+#
+# minvalue = 10000
+#
+# --- pseudocode --------------------------------------------------------
+#
+# read new stopper PV values from EPICS
+#
+# if stopperstate.pkl file is found:
+#
+#     read old stopper PV values from stopperstate.pkl using pickle.load()
+#
+#     for each soft xray hutch:
+#         if stopper newly opened:
+#             if ((soft_abtact == 0) or (soft_abtprd > minvalue))
+#                 soft_abtprd = minvalue
+#                 soft_abtact = 1
+#
+#     for each hard xray hutch:
+#         if stopper newly opened:
+#             if ((hard_abtact == 0) or (hard_abtprd > minvalue))
+#                 hard_abtprd = minvalue
+#                 hard_abtact = 1
+#
+# write new PV values to stopperstate.pkl file using pickle.dump()
+#
+# exit
