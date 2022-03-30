@@ -95,8 +95,11 @@ if os.path.isfile(savefile):
     if 'version' in old_state and old_state['version'][0] == major:
         # for each hutch, check if stopper newly opened
         for hutch in new_state['hutches'].keys():
-            if (old_state['hutches'][hutch]['stopper_readout'] != old_state['hutches'][hutch]['stopper_opens_on']) and \
-               (new_state['hutches'][hutch]['stopper_readout'] == new_state['hutches'][hutch]['stopper_opens_on']):
+            openstatus = new_state['hutches'][hutch]['stopper_opens_on']
+            newstate = new_state['hutches'][hutch]['stopper_readout']
+            savedstate = old_state['hutches'][hutch]['stopper_readout']
+            print(f"{hutch} Stopper opens on {openstatus} Stopper status is {newstate} Stopper status was previously {savedstate}")
+            if (savedstate != openstatus) and (newstate == openstatus):
                 print(f'hutch {hutch} opened')
 
                 if new_state['hutches'][hutch]['soft_xray']:
