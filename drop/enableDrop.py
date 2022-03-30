@@ -71,17 +71,13 @@ new_state = {
 }
 
 # get the new stopper state by reading from EPICS
-for value in new_state['hutches'].values():
-    value['stopper_readout'] = caget(value['stopper_pv'])
-
-# XXX pretend to open stoppers
-#new_state['hutches']['RIX']['stopper_readout'] = new_state['hutches']['RIX']['stopper_opens_on']
-#new_state['hutches']['XPP']['stopper_readout'] = new_state['hutches']['XPP']['stopper_opens_on']
+newdict=dict()
+for key, value in new_state['hutches'].items():
+    newdict[key] = value['stopper_readout'] = caget(value['stopper_pv'])
 
 print(f"Checked stoppers at: {datetime.datetime.now()}")
 
-print('--- new stopper state ---')
-pprint(new_state)
+print(newdict)
 
 # get the old stopper state by reading from save file
 if os.path.isfile(savefile):
@@ -89,8 +85,6 @@ if os.path.isfile(savefile):
     old_state = pickle.load(savedstateprimer)
     print(f'Save file "{savefile}" read')
     savedstateprimer.close()
-    print('--- old stopper state ---')
-    pprint(old_state)
 
     if 'version' in old_state and old_state['version'][0] == major:
         # for each hutch, check if stopper newly opened
@@ -104,14 +98,24 @@ if os.path.isfile(savefile):
 
                 if new_state['hutches'][hutch]['soft_xray']:
                     if (caget(soft_abtact) == 0) or (caget(soft_abtprd) > minvalue):
-                        caput(soft_abtprd, minvalue)
-                        caput(soft_abtact, 1)
-                        print(f"Soft xray drop shot period set to {minvalue} at {datetime.datetime.now()}")
+                        try:
+                            caput(soft_abtprd, minvalue)
+                            caput(soft_abtact, 1)
+                        except Exception as ex:
+                            print(f"Error: Setting {soft_abtprd} or {soft_abtact} failed at {datetime.datetime.now()}")
+                            print(f"Error: {ex}")
+                        else:
+                            print(f"Soft xray drop shot period set to {minvalue} at {datetime.datetime.now()}")
                 else:
                     if (caget(hard_abtact) == 0) or (caget(hard_abtprd) > minvalue):
-                        caput(hard_abtprd, minvalue)
-                        caput(hard_abtact, 1)
-                        print(f"Hard xray drop shot period set to {minvalue} at {datetime.datetime.now()}")
+                        try:
+                            caput(hard_abtprd, minvalue)
+                            caput(hard_abtact, 1)
+                        except Exception as ex:
+                            print(f"Error: Setting {hard_abtprd} or {hard_abtact} failed at {datetime.datetime.now()}")
+                            print(f"Error: {ex}")
+                        else:
+                            print(f"Hard xray drop shot period set to {minvalue} at {datetime.datetime.now()}")
     else:
         print(f'Save file "{savefile}" not compatible with version {major}.{minor}.{micro}')
 
