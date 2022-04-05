@@ -4,7 +4,6 @@ import time
 import datetime
 import os
 import sys
-from pprint import pprint
 
 major, minor, micro = (1, 0, 0)
 date = time.strftime('%Y_%m')
@@ -83,7 +82,6 @@ print(newdict)
 if os.path.isfile(savefile):
     savedstateprimer = open(savefile, 'rb')
     old_state = pickle.load(savedstateprimer)
-    print(f'Save file "{savefile}" read')
     savedstateprimer.close()
 
     if 'version' in old_state and old_state['version'][0] == major:
@@ -125,7 +123,6 @@ else:
 # write the new stopper state to save file
 newsavedstate = open(savefile, 'wb')
 savedlist = pickle.dump(new_state, newsavedstate)
-print(f'Save file "{savefile}" written')
 newsavedstate.close()
 
 #caget -d DBR_CTRL_ENUM (Stopper name) gets ya the descriptions of the states
